@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 data = pd.read_csv('log.csv', index_col = 0, parse_dates = True)
 data.index = pd.to_datetime(data.index * 1000, unit = 'ms')
 
-
 # times
 data['td'] = data.index.to_series().diff()
 times = []
