@@ -68,7 +68,6 @@ def gen_event_header(payloadsize):
     )
 
 # the readevent command line tool
-
 @minidaq.command()
 @click.pass_context
 @click.option("--nevents", "-n", default=2, help='Number of events.')
@@ -76,7 +75,7 @@ def readevent(ctx, nevents):
 
     nowtime = datetime.now()
 
-    #outfile = open("data.bin", "wb")
+    outfile = open("data.bin", "wb")
 
     for ievent in range(nevents):
 
