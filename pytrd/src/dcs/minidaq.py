@@ -14,15 +14,12 @@ import numpy as np
 from datetime import datetime
 
 # configure the logging module
-
 logging.basicConfig(filename = 'log1.log',   
                     filemode = 'a',   
                     level = logging.INFO,   
                     format = '%(created)s,%(message)s')  
 
-
 # creates the zmq environment (opens relative REQ channels to talk to the subevent builders)
-
 class zmq_env:
     def __init__(self):
 
@@ -39,28 +36,25 @@ class zmq_env:
 
 
 # a command line tool to run the zmq_env class
-
 @click.group()
 @click.pass_context
 def minidaq(ctx):
     ctx.obj = zmq_env()
 
-# varous functions to do crap
+# functions
 def get_pretrigger_count(trdbox):
     trdbox.send_string("read 0x102")
-    #logging.info('minidaq,trdboxdReadRequestSent,')   # new logs
+    #logging.info('minidaq,trdboxdReadRequestSent,')   # unhash to log communication times between minidaq and trdboxd
     cnt = int(trdbox.recv_string(), 16)
-    #logging.info('minidaq,trdboxdResponseReceived,')
+    #logging.info('minidaq,trdboxdResponseReceived,')   # unhash to log communication times between minidaq and trdboxd
     return cnt
 
 def wait_for_pretrigger(trdbox):
     cnt = get_pretrigger_count(trdbox)
     while get_pretrigger_count(trdbox) <= cnt:
-        #logging.info('minidaq,awaitingTrigger')
+        #logging.info('minidaq,awaitingTrigger')   # unhash to log communication times between minidaq and trdboxd
         #time.sleep(0.1)
         continue
-
-        # why are we sleeping here? can python not handle a open while loop?
 
 def gen_event_header(payloadsize):
     """Generate MiniDaq header"""
@@ -75,9 +69,7 @@ def gen_event_header(payloadsize):
         tis, int(tin) # time stamp
     )
 
-
 # the readevent command line tool
-
 @minidaq.command()
 @click.pass_context
 @click.option("--nevents", "-n", default=2, help='Number of events.')
@@ -85,25 +77,24 @@ def readevent(ctx, nevents):
 
     nowtime = datetime.now()
 
-    #outfile = open("data.bin", "wb")
-
+    outfile = open("data.bin", "wb")
 
     for ievent in range(nevents):
 
-        # unblock trigger
+        # send unblock trigger
         ctx.obj.trdbox.send_string("write 0x103 1") 
-        #logging.info('minidaq,unblockTriggerSent,')   # new logs 
+        logging.info('minidaq,unblockTriggerSent,')   # unhash to log communication times between minidaq and trdboxd
+        
+        # receive confirmation
         print(ctx.obj.trdbox.recv_string(), ievent, "unblocked")
-        #logging.info('minidaq,unblockTriggerConfirmed,')
+        #logging.info('minidaq,unblockTriggerConfirmed,')   # unhash to log communication times between minidaq and trdboxd
 
-        # log event number
-        logging.info(str(ievent))
+        logging.info(str(ievent))   # log event number
 
         # wait for pre-trigger
         wait_for_pretrigger(ctx.obj.trdbox)
 
-        # log pretrigger "found" and take timedelta from time the trdbox is next unblocked
-        logging.info('minidaq,preTrigger,')
+        logging.info('minidaq,preTrigger,')    # log pretrigger "found" 
 
         # define the equipments that should be read out
         eqlist = [ctx.obj.sfp0, ctx.obj.sfp1]
@@ -112,33 +103,26 @@ def readevent(ctx, nevents):
         i = 0
         for eq in eqlist:
             eq.send_string("read")
-            #logging.info(f'minidaq,sfp{i}dataRequestSent,')
+            logging.info(f'minidaq,sfp{i}dataRequestSent,')   # log times "read" command was sent to both sfp's
             i+=1
         
         # receive data
-        #data = list(eq.recv() for eq in eqlist)
-        #logging.info('minidaq,dataReceived,')
+        data = list(eq.recv() for eq in eqlist)
+        logging.info('minidaq,dataReceived,')   # log the time data was received from both sfp's
 
         data
 
         # build event
-        #evdata = bytes()   # save bytes size of data
-        #for segment in data:
-        #    evdata += segment
+        evdata = bytes()   # save bytes size of data
+        for segment in data:
+            evdata += segment
 
         # write to file
-        #outfile.write(evdata)
-
-        # fetch scope data
+        outfile.write(evdata)
+        logging.info('minidaq,dataWrittenToFile,')   # log time data written to file
         
-        
-        #logging.info('minidaq,dataWrittenToFile,')
-        
-
         time.sleep(0.1)
     
-
     click.echo(f"Runtime: {np.round((datetime.now()-nowtime).total_seconds(), 5)}s")
 
-
-    #outfile.close()
+    outfile.close()
