@@ -4,7 +4,7 @@ All files required to reproduced the measurements taken with the TRD detector at
 
 ------------
 
-### Files:
+### Folders:
 
 pytrd - All python files. Most important are minidaq.py and trdbox.py found at pytrd/src/dcs.
 
