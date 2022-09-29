@@ -1,0 +1,10 @@
+/home/trd/tristan/trdbox/CMakeFiles/install/strip.dir
+/home/trd/tristan/trdbox/CMakeFiles/install/local.dir
+/home/trd/tristan/trdbox/CMakeFiles/install.dir
+/home/trd/tristan/trdbox/CMakeFiles/list_install_components.dir
+/home/trd/tristan/trdbox/CMakeFiles/rebuild_cache.dir
+/home/trd/tristan/trdbox/CMakeFiles/edit_cache.dir
+/home/trd/tristan/trdbox/CMakeFiles/package.dir
+/home/trd/tristan/trdbox/CMakeFiles/package_source.dir
+/home/trd/tristan/trdbox/CMakeFiles/subevd.dir
+/home/trd/tristan/trdbox/CMakeFiles/trdboxd.dir

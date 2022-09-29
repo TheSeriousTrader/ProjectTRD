@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/subevd.dir/subevd.cc.o CMakeFiles/subevd.dir/trd_subevent_builder.cc.o  -o subevd  -lPocoFoundation -lPocoUtil -lzmq 

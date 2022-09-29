@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+# trdbox       Start and stop the DIM server for the TRD LogicBox
+#
+# chkconfig:   345 90 10
+# description: trdbox is a DIM server for the TRD LogicBox
+# processname: trdbox
+#
+
+# Source function library.
+
+# To run different servers, create symbolic link ro subsystems, eg:
+#    ln -s /usr/local/bin/trdbox /usr/local/bin//trdbox_ra12cr2
+. /etc/rc.d/init.d/functions
+
+
+if [ -f /etc/profile.d/dim_dns_node.sh ] ; then
+    . /etc/profile.d/dim_dns_node.sh
+else 
+    export DIM_DNS_NODE=alitrddimdns
+fi
+
+
+
+#
+# coredumps
+enable_coredumps="true"
+
+prog="trdbox"
+opts=""
+
+trdbox="/usr/sbin/$prog"
+lockfile="/var/lock/subsys/$prog"
+pidfile="/var/run/$prog.pid"
+
+RETVAL=0
+
+
+# Shell functions to cut down on unnecessary shell invocations.
+start() {
+        [ -x $trdbox ] || exit 5
+	if [ -f $lockfile ]; then 
+	    echo "$prog already running ($lockfile)"
+	    return 0
+	fi
+        echo -n $"Starting $prog: "
+	if [ "$enable_coredumps"x == "true"x ]; then
+	    echo "/tmp/core_%e.%t.%p" >  /proc/sys/kernel/core_pattern 
+	    echo -n "coredumps to /tmp/core_%e.%t.%p"
+	    ulimit -c unlimited
+	fi
+	$trdbox $opts && success || failure
+        RETVAL=$?
+	usleep 100000
+	pid=`pidof -o $$ -o $PPID -o %PPID -x $prog`
+	if [ -n "$pid" ] ; then
+	    echo_success
+	    touch $lockfile
+	    echo "$pid" > $pidfile
+	    RETVAL=0
+	else
+	    echo_failure
+	    RETVAL=
+	fi
+	echo
+
+}
+stop() {
+	[ ! -f $lockfile ] && return 0
+        echo -n $"Stopping $prog: "
+        killproc ${prog}
+        RETVAL=$?
+        echo
+	rm -f $pidfile
+	rm -f $lockfile
+
+#        [ $RETVAL = 0 ] && rm -f $lockfile
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        stop
+        start
+        ;;
+  status)
+        status ${trdbox}
+	RETVAL=$?
+        ;;
+  condrestart)
+        if [ -f $lockfile ] ; then
+                stop
+                start
+        fi
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+        RETVAL=2
+        ;;
+esac
+
+exit $RETVAL

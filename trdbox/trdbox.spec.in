@@ -1,0 +1,42 @@
+Summary: library for low-level access to the LogicBox
+Name: @PACKAGE_TARNAME@
+Version: @PACKAGE_VERSION@
+Release: @RPM_RELEASE@
+License: GPL
+Group: Applications/Science
+Source: %{name}-%{version}.tar.gz
+Distribution: ALICE TRD
+Vendor: ALICE TRD
+Packager: @PACKAGE_BUGREPORT@
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+DIM server for the LogocBox configured to interface with a single TRD chamber.
+
+
+%prep
+%setup
+%configure 
+
+%build
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+%makeinstall
+#make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%{_sbindir}/trdbox
+%{_datadir}/trdbox/sfpprog.bin
+%{_sysconfdir}/init.d/trdbox
+
+
+
+
+
+

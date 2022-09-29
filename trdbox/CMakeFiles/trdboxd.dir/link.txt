@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/trdboxd.dir/trdboxd.cc.o CMakeFiles/trdboxd.dir/logicbox/su738.cc.o  -o trdboxd  -ldim -llogicbox -lPocoFoundation -lboost_date_time -lusb -lzmq 
